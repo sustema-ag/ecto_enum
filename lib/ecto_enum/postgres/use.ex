@@ -58,9 +58,11 @@ defmodule EctoEnum.Postgres.Use do
       def __enum_map__(), do: __enums__()
       def __valid_values__(), do: unquote(valid_values)
 
-      default_schema = "public"
-      schema = Keyword.get(input, :schema, default_schema)
-      type = :"#{schema}.#{input[:type]}"
+      {schema, type} =
+        case Keyword.fetch(input, :schema) do
+          {:ok, schema} -> {schema, :"#{schema}.#{input[:type]}"}
+          :error -> {nil, :"#{input[:type]}"}
+        end
 
       def type, do: unquote(type)
       def schemaless_type, do: unquote(input[:type])
